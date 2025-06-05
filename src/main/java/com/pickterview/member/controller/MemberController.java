@@ -3,6 +3,7 @@ package com.pickterview.member.controller;
 import com.pickterview.member.dto.request.MemberLoginRequestDto;
 import com.pickterview.member.dto.request.MemberSignupRequestDto;
 import com.pickterview.member.dto.response.JwtToken;
+import com.pickterview.member.dto.response.MemberResponseDto;
 import com.pickterview.member.dto.response.MemberSignupResponseDto;
 import com.pickterview.member.entity.Member;
 import com.pickterview.member.service.MemberService;
@@ -11,11 +12,10 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/auth")
@@ -50,5 +50,29 @@ public class MemberController {
         }
     }
 
+    @GetMapping("/me")
+    public ResponseEntity<MemberResponseDto> getCurrentMemberInfo(Authentication authentication) {
+        if (authentication == null || !authentication.isAuthenticated()) {
+            // 이 경우는 JwtAuthenticationFilter에서 걸러지므로 거의 발생하지 않지만, 방어적으로 처리
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+
+        // Authentication 객체에서 사용자 이름(여기서는 이메일)을 가져옵니다.
+        String userEmail;
+        Object principal = authentication.getPrincipal();
+
+        if (principal instanceof UserDetails) {
+            userEmail = ((UserDetails) principal).getUsername();
+        } else if (principal instanceof String) {
+            userEmail = (String) principal;
+        } else {
+            // 예상치 못한 Principal 타입
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+
+        Member member = memberService.findMemberByEmail(userEmail);
+        MemberResponseDto responseDto = MemberResponseDto.fromEntity(member);
+        return ResponseEntity.ok(responseDto);
+    }
 
 }

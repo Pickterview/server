@@ -45,7 +45,7 @@ public class Member implements UserDetails {
 
     @Column(nullable = false, length = 30)
     @Builder.Default
-    private String tier = "BRONZE3";    // 티어 (기본값: BRONZE3)
+    private String tier = "BRONZE";    // 티어 (기본값: BRONZE3)
 
     @Column(name = "profile_image", length = 255)
     private String profileImage;        // 프로필 이미지 URL

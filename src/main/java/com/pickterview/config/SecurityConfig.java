@@ -48,7 +48,7 @@ public class SecurityConfig {
                 )
                 .cors(cors -> cors.configurationSource(corsConfigurationSource())) // CORS 설정 추가
                 .authorizeHttpRequests(
-                        (auth) -> auth.requestMatchers("/api/auth/signup","/api/auth/signin").permitAll()
+                        (auth) -> auth.requestMatchers("/api/auth/**").permitAll()
                                 .anyRequest().authenticated()
                 )
                 .addFilterBefore(new JwtAuthenticationFilter(jwtTokenProvider), UsernamePasswordAuthenticationFilter.class);
