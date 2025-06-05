@@ -1,0 +1,22 @@
+spring:
+  application:
+    name: pickterview
+
+  datasource:
+    url: jdbc:mysql://localhost:3306/pickterview
+    username: root
+    password: top9601best
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+
+jwt:
+  secret: this_is_a_secure_secret_key_for_pickterview_service
+  expiration:
+    access-token: 3600000
