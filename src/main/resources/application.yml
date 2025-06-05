@@ -17,6 +17,14 @@ spring:
         format_sql: true
 
 jwt:
-  secret: this_is_a_secure_secret_key_for_pickterview_service
+  secret: 1b709a2cbee82e89d6aa4f155501fc9c3a7759e20b865968f71d4866b5731517
   expiration:
     access-token: 3600000
+
+logging:
+  level:
+    org:
+      springframework:
+        security=DEBUG:
+logging.level.org.springframework.aop=DEBUG:
+logging.level.org.springframework.transaction=DEBUG:

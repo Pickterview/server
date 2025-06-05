@@ -7,8 +7,14 @@ import jakarta.persistence.*; // JPA 3.x (Spring Boot 3.x)
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 
 import java.time.LocalDateTime;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * User 엔티티:
@@ -22,7 +28,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class Member {
+public class Member implements UserDetails {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -76,4 +82,49 @@ public class Member {
     @Enumerated(EnumType.STRING)
     @Builder.Default
     private Role role = Role.ROLE_USER;
+
+// --- UserDetails 인터페이스 메소드 구현 ---
+
+    /**
+     * 사용자가 가진 권한 목록을 반환합니다.
+     * 여기서는 Member 엔티티의 role 필드를 기반으로 권한을 설정합니다.
+     * Spring Security는 일반적으로 "ROLE_" 접두사가 붙은 권한 이름을 기대합니다.
+     * Role enum의 이름이 "USER", "ADMIN"이라면 "ROLE_USER", "ROLE_ADMIN" 형태로 만들어줍니다.
+     */
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        // Role enum의 name() 메소드가 "ROLE_USER", "ROLE_ADMIN" 등을 반환한다고 가정합니다.
+        // 만약 Role.USER.name()이 "USER"만 반환한다면 "ROLE_" + this.role.name() 처럼 접두사를 붙여야 할 수 있습니다.
+        // 혹은 Role enum 자체에 getAuthority() 같은 메소드를 만들어 "ROLE_USER" 형태로 반환하게 할 수도 있습니다.
+        if (this.role == null) {
+            return Collections.emptyList();
+        }
+        return List.of(new SimpleGrantedAuthority(this.role.name()));
+    }
+
+    @Override
+    public String getUsername() {
+        return this.email;
+    }
+
+    @Override
+    public boolean isAccountNonExpired() {
+        return true;
+    }
+
+    @Override
+    public boolean isAccountNonLocked() {
+        return true;
+    }
+
+    @Override
+    public boolean isCredentialsNonExpired() {
+        return true;
+    }
+
+    @Override
+    public boolean isEnabled() {
+        return true;
+    }
+
 }
